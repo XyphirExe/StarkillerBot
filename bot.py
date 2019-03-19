@@ -7,6 +7,6 @@ client = commands.Bot(command_prefix = 'star')
 
 @client.event
 async def on_ready():
-    print('Bot is ready')
+    print('Je suis prêt.')
 
 client.run(TOKEN)
