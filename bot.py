@@ -4,7 +4,7 @@ import asyncio
 from itertools import cycle
 import typing
 
-TOKEN = 'Ajouter token'
+TOKEN = ''
 
 client = commands.Bot(command_prefix = '.')
 status = ['réfléchir','rien']
