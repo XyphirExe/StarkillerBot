@@ -31,9 +31,9 @@ OPUS_LIBRARIES = ['libopus-0.x86.dll', 'libopus-0.x64.dll',
 def load_opus_libraries(opus_libraries=OPUS_LIBRARIES):
     if opus.is_loaded():
         return True
-    for opus_lib in opus_libraries:
+    for opus_library in opus_libraries:
         try:
-            opus.load_opus(opus_lib)
+            opus.load_opus(opus_library)
             return
         except OSError:
             pass
