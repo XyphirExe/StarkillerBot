@@ -2,19 +2,22 @@ import discord
 from discord.ext import commands
 
 TOKEN = 'NTYyNjE0MzIzMDM0MTkzOTIx.XMb6KA.vb6lNQDyFO9neyu9PMBISqUjrPE'
-client = commands.Bot(command_prefix='.')
+client = commands.Bot(command_prefix='star')
 
 
+#Événement on_ready : pour montrer si le bot est prêt à recevoir des commandes
 @client.event
 async def on_ready():
     print('Le bot est prêt !')
 
 
+#Commande ping : une commande de test
 @client.command()
 async def ping(ctx):
     await ctx.send('Pong!')
 
 
+#Commande audio : le bot se connecte à une certaine channel vocal et y joue une musique demandée (située sur l'ordinateur)
 @client.command()
 async def play(ctx, *, audioFileName):
     global vc
@@ -26,6 +29,8 @@ async def play(ctx, *, audioFileName):
         await vc.disconnect()
 
 
+#Commande creepy : une musique déclenchée automatiquement lors de l'écriture de cette commande qui envoi un son
+#creepy sur le channel vocal
 @client.command()
 async def creepy(ctx):
     global vc
@@ -37,6 +42,7 @@ async def creepy(ctx):
         await vc.disconnect()
 
 
+#Commande gone : Imite le meme internet "[Someone] IS GONE!", déclenchant alors la musique iconique et un texte lié
 @client.command()
 async def gone(ctx, *, playerName):
     global vc
@@ -49,6 +55,7 @@ async def gone(ctx, *, playerName):
         await vc.disconnect()
 
 
+#Commande audio pause : pour mettre le bot en pause si il joue une musique
 @client.command()
 async def pause(ctx):
     global vc
@@ -63,6 +70,7 @@ async def resume(ctx):
     vc.resume()
 
 
+#Commande audio stop : permet d'arrêter le bot si il joue une musique
 @client.command()
 async def stop(ctx):
     global vc
@@ -70,6 +78,7 @@ async def stop(ctx):
     vc.disconnect()
 
 
+#Commande quiz : Permet de jouer à un quiz avec le bot composé de 5 questions prédéterminées et d'un compteur de points
 @client.command()
 async def quiz(ctx):
     await ctx.send("**QUIZ: L'HISTOIRE DES JEUX VIDÉOS**\n**Et c'est parti pour le quiz !**")
