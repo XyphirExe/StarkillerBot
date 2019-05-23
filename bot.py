@@ -4,18 +4,7 @@ import asyncio
 from mutagen.mp3 import MP3
 from discord import opus
 
-LAUNCHING_SOUND = str(input("Lancer le bot en le connectant à un salon vocal" +
-                            "vocal pour annoncer qu'il est connecté ? [y/N] "))
-if LAUNCHING_SOUND == "y":
-    LAUNCHING_SOUND_CHANNEL = int(input("ID du salon vocal : "))
-    while not len(LAUNCHING_SOUND_CHANNEL) == 18 and LAUNCHING_SOUND_CHANNEL.isdigit():
-        if LAUNCHING_SOUND == "N":
-            LAUNCHING_SOUND_CHANNEL = None
-            break
-        else:
-            print("Erreur, il faut un ID de salon textuel. (nombre à 18 digits)")
-            LAUNCHING_SOUND = str(input("Continuer ? [y/N] "))
-            LAUNCHING_SOUND_CHANNEL = int(input("ID du salon vocal : "))
+LAUNCHING_SOUND = str(input(" "))
 
 
 TOKEN = 'NTU2OTMyMjgzMTM1OTUwODQ5.D3A_Uw.pr3hw_8BQFRWvYIMHpUxVgo0nnE'
