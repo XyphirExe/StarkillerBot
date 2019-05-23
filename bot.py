@@ -4,12 +4,26 @@ import asyncio
 from mutagen.mp3 import MP3
 from discord import opus
 
+LAUNCHING_SOUND = str(input("Lancer le bot en le connectant à un salon vocal" +
+                            "vocal pour annoncer qu'il est connecté ? [y/N] "))
+if LAUNCHING_SOUND == "y":
+    LAUNCHING_SOUND_CHANNEL = int(input("ID du salon vocal : "))
+    while not len(LAUNCHING_SOUND_CHANNEL) == 18 and LAUNCHING_SOUND_CHANNEL.isdigit():
+        if LAUNCHING_SOUND == "N":
+            LAUNCHING_SOUND_CHANNEL = None
+            break
+        else:
+            print("Erreur, il faut un ID de salon textuel. (nombre à 18 digits)")
+            LAUNCHING_SOUND = str(input("Continuer ? [y/N] "))
+            LAUNCHING_SOUND_CHANNEL = int(input("ID du salon vocal : "))
+
 
 TOKEN = 'NTU2OTMyMjgzMTM1OTUwODQ5.D3A_Uw.pr3hw_8BQFRWvYIMHpUxVgo0nnE'
 
 client = commands.Bot(command_prefix='star')
 
-
+global LAUNCHING_SOUND
+global LAUNCHING_SOUND_CHANNEL
 global ChannelAlpha
 global ChannelBeta
 global setChannels
@@ -68,10 +82,11 @@ async def loop():
 @client.event
 async def on_ready():
     global vc
+    global LAUNCHING_SOUND
     print('Bot is ready.')
-    print('As : ' + str(client.user.name))
-    print('ID : ' + str(client.user.id))
-    fromchannel = client.get_channel(408716218829373460)
+    print('Connected as : ' + str(client.user.name))
+    print('With ID : ' + str(client.user.id))
+    fromchannel = LAUNCHING_SOUND_CHANNEL
     if vc is None:
         vc = await fromchannel.connect()
     audiofile = 'my_body_is_ready2.mp3'
@@ -84,9 +99,7 @@ async def on_ready():
 
 @client.command()
 async def ping(ctx):
-    await ctx.send("Pong!\nPfiouu..." +
-                   f"ça m'a pris {round(client.latency * 1000)} ms" +
-                   "à renvoyer la balle!")
+    await ctx.send(f"Pong!\nPfiouu... ça m'a pris {round(client.latency * 1000)} ms à renvoyer la balle!")
 
 
 @client.command()
@@ -102,20 +115,15 @@ async def echo(ctx):
 async def setstatus(ctx, type, url, *, newStatus=None):
     if type == str("Playing"):
         newStatus = url + " " + newStatus
-        await client.change_presence(
-            activity=discord.Game(name=newStatus))
+        await client.change_presence(activity=discord.Game(name=newStatus))
     elif type == str("Listening"):
         newStatus = url + " " + newStatus
-        await client.change_presence(activity=discord.Activity(
-            type=discord.ActivityType.listening, name=newStatus))
+        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=newStatus))
     elif type == str("Watching"):
         newStatus = url + " " + newStatus
-        await client.change_presence(
-            activity=discord.Activity(
-                type=discord.ActivityType.watching, name=newStatus))
+        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=newStatus))
     elif type == str("Streaming"):
-        await client.change_presence(
-            activity=discord.Streaming(name=newStatus, url=url))
+        await client.change_presence(activity=discord.Streaming(name=newStatus, url=url))
 
 
 @client.event
@@ -173,13 +181,10 @@ async def addCChannel(ctx, *, id):
         fromGuild = addChannel.guild
         listConnectedChannels.append(id)
         setChannels = setChannels + int(1)
-        await ctx.send("Le salon textuel {} (ID: {}) du serveur {}"
-                       .format(addChannel, id, fromGuild) +
-                       " à été ajouté! ID des salons textuels connectés:")
+        await ctx.send("Le salon textuel {} (ID: {}) du serveur {} à été ajouté! ID des salons textuels connectés:".format(addChannel, id, fromGuild))
         await ctx.send(listConnectedChannels)
     else:
-        await ctx.send("Erreur, il faut un ID de salon textuel." +
-                       " (nombre à 18 digits)")
+        await ctx.send("Erreur, il faut un ID de salon textuel. (nombre à 18 digits)")
 
 
 @client.command()
@@ -191,13 +196,10 @@ async def removeCChannel(ctx, *, id):
         fromGuild = removeChannel.guild
         listConnectedChannels.remove(id)
         setChannels = setChannels - int(1)
-        await ctx.send("Le salon textuel {} (ID: {}) du serveur {}"
-                       .format(removeChannel, id, fromGuild) +
-                       " à été enlevé. ID des salons textuels connectés:")
+        await ctx.send("Le salon textuel {} (ID: {}) du serveur {} à été enlevé. ID des salons textuels connectés: ".format(removeChannel, id, fromGuild))
         await ctx.send(listConnectedChannels)
     else:
-        await ctx.send("Erreur, il faut un ID de salon textuel." +
-                       " (nombre à 18 digits)")
+        await ctx.send("Erreur, il faut un ID de salon textuel. (nombre à 18 digits)")
 
 
 @client.event
@@ -210,10 +212,8 @@ async def on_message(message):
         author = message.author
         content = message.content
         channel = message.channel
-        if message.author != client.user \
-           and str(channel.id) in listConnectedChannels:
-            print('|| In {} / Channel= {} | < {} >: {}'.format(
-                  guild, channel, author, content))
+        if message.author != client.user and str(channel.id) in listConnectedChannels:
+            print('|| In {} / Channel= {} | < {} >: {}'.format(guild, channel, author, content))
             if str(channel.id) in listConnectedChannels:
                 for connectedChannel in listConnectedChannels:
                     getListChannel = client.get_channel(int(connectedChannel))
@@ -222,8 +222,7 @@ async def on_message(message):
                             continue
                         else:
                             await getListChannel.send(
-                                "{} a dit dans {}/{}: {}".format(
-                                    author, guild, channel, content))
+                                "{} a dit dans {}/{}: {}".format(author, guild, channel, content))
                     except AssertionError:
                         continue
                 await client.process_commands(message)
