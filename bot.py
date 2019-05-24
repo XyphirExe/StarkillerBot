@@ -22,8 +22,7 @@ bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossie
 bienvenue += '.mp3'
 testBienvenue = int(0)
 while testBienvenue == 0:
-    channelBienvenue = str(
-        input('> Sélectionnez le salon vocal de bienvenue (ID à 18 digits sur votre serveur Discord) :\n'))
+    channelBienvenue = str(input('> Sélectionnez le salon vocal de bienvenue (ID à 18 digits sur votre serveur Discord) :\n'))
     if len(channelBienvenue) == 18 and channelBienvenue.isdigit():
         print("> Salon vocal utilisé : (ID: {})\n".format(channelBienvenue))
         testBienvenue = int(1)
@@ -34,8 +33,7 @@ while testBienvenue == 0:
 
 testReady = int(0)
 while testReady == 0:
-    channelReady = str(
-        input('> Sélectionnez le salon vocal pour annoncer que le bot est prêt (ID à 18 digits sur votre serveur Discord) :\n'))
+    channelReady = str(input('> Sélectionnez le salon vocal pour annoncer que le bot est prêt (ID à 18 digits sur votre serveur Discord) :\n'))
     if len(channelReady) == 18 and channelReady.isdigit():
         print("> Salon vocal utilisé : (ID: {})\n".format(channelReady))
         testReady = int(1)
