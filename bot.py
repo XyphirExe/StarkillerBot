@@ -4,20 +4,44 @@ import asyncio
 from mutagen.mp3 import MP3
 from discord import opus
 
-LAUNCHING_SOUND = str(input(" "))
+
+TOKEN = "NTUzMjE3NjQ2ODQyMDg1Mzg3.D3w0Xg.eHMq9yFiW5EBxhvWqPW7F44Vzj8"
+
+client = commands.Bot(command_prefix=str(input("Préfixe du bot (utilisé pour l'invoquer) :\n")))
 
 
-TOKEN = 'NTU2OTMyMjgzMTM1OTUwODQ5.D3A_Uw.pr3hw_8BQFRWvYIMHpUxVgo0nnE'
-
-client = commands.Bot(command_prefix='star')
-
-global LAUNCHING_SOUND
-global LAUNCHING_SOUND_CHANNEL
-global ChannelAlpha
-global ChannelBeta
 global setChannels
 global vc
 global listConnectedChannels
+global bienvenue
+global channelBienvenue
+global channelReady
+
+
+bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossier "Musiques"\nElle sera utilisée comme musique de bienvenue sur un salon vocal précis :\n'))
+bienvenue += '.mp3'
+testBienvenue = int(0)
+while testBienvenue == 0:
+    channelBienvenue = str(
+        input('> Sélectionnez le salon vocal de bienvenue (ID à 18 digits sur votre serveur Discord) :\n'))
+    if len(channelBienvenue) == 18 and channelBienvenue.isdigit():
+        print("> Salon vocal utilisé : (ID: {})\n".format(channelBienvenue))
+        testBienvenue = int(1)
+    else:
+        print("> Erreur, il faut un ID de salon textuel. (nombre à 18 digits)\n")
+        testBienvenue = int(0)
+
+
+testReady = int(0)
+while testReady == 0:
+    channelReady = str(
+        input('> Sélectionnez le salon vocal pour annoncer que le bot est prêt (ID à 18 digits sur votre serveur Discord) :\n'))
+    if len(channelReady) == 18 and channelReady.isdigit():
+        print("> Salon vocal utilisé : (ID: {})\n".format(channelReady))
+        testReady = int(1)
+    else:
+        print("> Erreur, il faut un ID de salon textuel. (nombre à 18 digits)\n")
+        testReady = int(0)
 
 
 listConnectedChannels = []
@@ -31,15 +55,15 @@ OPUS_LIBRARIES = ['libopus-0.x86.dll', 'libopus-0.x64.dll',
                   'libopus-0.dll', 'libopus.so.0', 'libopus.0.dylib']
 
 
-def load_opus_libraries(opus_libraries=OPUS_LIBRARIES):
-    if opus.is_loaded():
-        return True
-    for opus_library in opus_libraries:
-        try:
-            opus.load_opus(opus_library)
-            return
-        except OSError:
-            pass
+def load_opus_lib(opus_libraries=OPUS_LIBRARIES):
+    if opus.is_loaded() is False:
+        for opus_lib in opus_libraries:
+            try:
+                opus.load_opus(opus_lib)
+                return
+            except OSError:
+                pass
+        print("<<!>> Erreur, je n'ai pas pu chargé l'opus {}".format(opus_lib))
 
 
 async def stopMusic():
@@ -51,33 +75,31 @@ async def stopMusic():
         elif vc.is_connected() is True and vc.is_playing() is False:
             vc.stop()
             await vc.disconnect()
-        await asyncio.sleep(120)
+        await asyncio.sleep(300)
 
 
 async def loop():
-    await asyncio.sleep(10)
     await client.wait_until_ready()
     channel = client.get_channel(577970026468999178)
+    loopTime = 1
 
     while not client.is_closed():
         await asyncio.sleep(1700)
-        loopTime = 1
         print("Looped!")
         await channel.send("Looped!" + str(loopTime))
         loopTime += 1
-        await asyncio.sleep(1700)
 
 
 @client.event
 async def on_ready():
     global vc
-    global LAUNCHING_SOUND
+    global channelReady
     print('Bot is ready.')
-    print('Connected as : ' + str(client.user.name))
-    print('With ID : ' + str(client.user.id))
-    fromchannel = LAUNCHING_SOUND_CHANNEL
+    print('As : ' + str(client.user.name))
+    print('ID : ' + str(client.user.id))
+    readyChannel = client.get_channel(int(channelReady))
     if vc is None:
-        vc = await fromchannel.connect()
+        vc = await readyChannel.connect()
     audiofile = 'my_body_is_ready2.mp3'
     vc.play(discord.FFmpegPCMAudio(audiofile))
     sound = MP3(str(audiofile))
@@ -95,13 +117,13 @@ async def ping(ctx):
 async def echo(ctx):
     echoText = ctx.message.content[len(ctx.prefix) + len(ctx.invoked_with):]
     if echoText == '':
-        await ctx.send("Khey t'as rien dis wesh...")
+        await ctx.send("Il semblerait que rien n'est sorti de votre clavier! :)")
     else:
         await ctx.send(f"**{echoText}**")
 
 
 @client.command()
-async def setstatus(ctx, type, url, *, newStatus=None):
+async def setstatus(ctx, type=str("Nothing"), url=str(""), *, newStatus=str("")):
     if type == str("Playing"):
         newStatus = url + " " + newStatus
         await client.change_presence(activity=discord.Game(name=newStatus))
@@ -113,18 +135,20 @@ async def setstatus(ctx, type, url, *, newStatus=None):
         await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=newStatus))
     elif type == str("Streaming"):
         await client.change_presence(activity=discord.Streaming(name=newStatus, url=url))
+    else:
+        await ctx.send("La commande a été mal utilisée.\nPréciser le type d'activité, l'url du stream si c'en est un et/ou la phrase de status. ")
 
 
 @client.event
 async def on_voice_state_update(member, before, after):
-    await client.wait_until_ready()
-    fromchannel = client.get_channel(408716218829373460)
+    global bienvenue
+    global channelBienvenue
+    bienvenueChannel = client.get_channel(int(channelBienvenue))
     if member.id != client.user.id:
-        if after.channel == fromchannel:
-            vc = await fromchannel.connect()
-            rhinochill = 'rhinochill.mp3'
-            vc.play(discord.FFmpegPCMAudio(rhinochill))
-            sound = MP3(str(rhinochill))
+        if after.channel == bienvenueChannel:
+            vc = await bienvenueChannel.connect()
+            vc.play(discord.FFmpegPCMAudio(bienvenue))
+            sound = MP3(str(bienvenue))
             time = int(sound.info.length)
             await asyncio.sleep(time + 5)
             await vc.disconnect()
@@ -148,73 +172,84 @@ async def play(ctx, *, audioFileName):
 
 
 @client.command()
+async def pause(ctx):
+    global vc
+    vc.pause()
+    await ctx.send("Paused")
+
+
+@client.command()
+async def resume(ctx):
+    global vc
+    vc.resume()
+    await ctx.send("Resumed")
+
+
+@client.command()
 async def stop(ctx):
     global vc
-    await ctx.send("Stopped")
     vc.stop()
+    await ctx.send("Stopped")
 
 
 @client.command()
 async def disconnect(ctx):
     global vc
-    await ctx.send("Disconnected")
     await vc.disconnect()
+    await ctx.send("Disconnected")
 
 
 @client.command()
-async def addCChannel(ctx, *, id):
+async def addCChannel(ctx, *, id=str("Rien")):
     global setChannels
     global listConnectedChannels
-    if len(id) == 18 and id.isdigit():
+    if len(id) == 18 and id.isdigit() and str(id) not in listConnectedChannels:
         addChannel = client.get_channel(int(id))
         fromGuild = addChannel.guild
         listConnectedChannels.append(id)
         setChannels = setChannels + int(1)
-        await ctx.send("Le salon textuel {} (ID: {}) du serveur {} à été ajouté! ID des salons textuels connectés:".format(addChannel, id, fromGuild))
+        await ctx.send("Le salon textuel {} (ID: {}) du serveur {} à été ajouté\nID des salons textuels connectés : ".format(addChannel, id, fromGuild))
         await ctx.send(listConnectedChannels)
     else:
-        await ctx.send("Erreur, il faut un ID de salon textuel. (nombre à 18 digits)")
+        await ctx.send("Erreur, il faut un ID de salon textuel existant n'étant pas dans la liste d'ID. (nombre à 18 digits)")
 
 
 @client.command()
-async def removeCChannel(ctx, *, id):
+async def removeCChannel(ctx, *, id=str("Rien")):
     global setChannels
     global listConnectedChannels
-    if len(id) == 18 and id.isdigit():
+    if len(id) == 18 and id.isdigit() and str(id) in listConnectedChannels:
         removeChannel = client.get_channel(int(id))
         fromGuild = removeChannel.guild
         listConnectedChannels.remove(id)
         setChannels = setChannels - int(1)
-        await ctx.send("Le salon textuel {} (ID: {}) du serveur {} à été enlevé. ID des salons textuels connectés: ".format(removeChannel, id, fromGuild))
+        await ctx.send("Le salon textuel {} (ID: {}) du serveur {} à été enlevé.\nID des salons textuels connectés : ".format(removeChannel, id, fromGuild))
         await ctx.send(listConnectedChannels)
     else:
-        await ctx.send("Erreur, il faut un ID de salon textuel. (nombre à 18 digits)")
+        await ctx.send("Erreur, il faut un ID de salon textuel existant dans la liste d'ID. (nombre à 18 digits)")
 
 
 @client.event
 async def on_message(message):
     global setChannels
     global listConnectedChannels
+    guild = message.guild
+    author = message.author
+    content = message.content
+    channel = message.channel
+    print('|| In {} / Channel= {} | < {} >:\n     {}'.format(guild, channel, author, content))
     channelsTest = int(2)
-    if setChannels >= channelsTest:
-        guild = message.guild
-        author = message.author
-        content = message.content
-        channel = message.channel
-        if message.author != client.user and str(channel.id) in listConnectedChannels:
-            print('|| In {} / Channel= {} | < {} >: {}'.format(guild, channel, author, content))
-            if str(channel.id) in listConnectedChannels:
-                for connectedChannel in listConnectedChannels:
-                    getListChannel = client.get_channel(int(connectedChannel))
-                    try:
-                        if getListChannel == channel:
-                            continue
-                        else:
-                            await getListChannel.send(
-                                "{} a dit dans {}/{}: {}".format(author, guild, channel, content))
-                    except AssertionError:
-                        continue
-                await client.process_commands(message)
+    if setChannels >= channelsTest and message.author != client.user and str(channel.id) in listConnectedChannels:
+        for connectedChannel in listConnectedChannels:
+            getListChannel = client.get_channel(int(connectedChannel))
+            try:
+                if getListChannel == channel:
+                    continue
+                else:
+                    await getListChannel.send("{} a dit dans {} / {}: {}".format(author, guild, channel, content))
+            except AssertionError:
+                print("|<!>| Message de {} non envoyé dans {} / {} :\n       {}".format(guild, channel, author, content))
+                continue
         await client.process_commands(message)
     else:
         await client.process_commands(message)
@@ -223,10 +258,10 @@ async def on_message(message):
 @client.event
 async def on_message_delete(message):
     author = message.author
+    guild = message.guild
     content = message.content
     channel = message.channel
-    await channel.send(
-        "``` {} a dit: {} ... Il n'a pas assumé. ```".format(author, content))
+    print("|<!>| Ce message de {} dans {} / {} à été supprimé :\n     {}".format(author, guild, channel, content))
     await client.process_commands(message)
 
 
