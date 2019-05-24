@@ -139,6 +139,24 @@ async def setstatus(ctx, type=str("Nothing"), url=str(""), *, newStatus=str(""))
 
 @client.event
 async def on_voice_state_update(member, before, after):
+    global vc
+    goneFrom = before.channel
+    if member.id != client.user.id:
+        if before.channel == goneFrom and after.channel != before.channel:
+            if vc.is_playing() is False:
+                vc = await goneFrom.connect()
+                audioFileName = str('gone.mp3')
+                vc.play(discord.FFmpegPCMAudio(audioFileName))
+                sound = MP3(str(audioFileName))
+                time = int(sound.info.length)
+                await asyncio.sleep(time + 5)
+                await vc.disconnect()
+    else:
+        None
+
+
+@client.event
+async def on_voice_state_update(member, before, after):
     global bienvenue
     global channelBienvenue
     bienvenueChannel = client.get_channel(int(channelBienvenue))
