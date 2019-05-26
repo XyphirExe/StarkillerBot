@@ -85,7 +85,7 @@ async def stopMusic():
 
 async def loop():
     await client.wait_until_ready()
-    channel = client.get_channel(582330950348963861)
+    channel = client.get_channel(582344339225837579)
     loopTime = 1
 
     while not client.is_closed():
