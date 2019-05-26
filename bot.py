@@ -163,6 +163,7 @@ async def on_voice_state_update(member, before, after):
         if vc.is_connected() is False:
             vc = await bienvenueChannel.connect()
         if vc.is_playing() is False:
+            await asyncio.sleep(2)
             bienvenue += str('.mp3')
             vc.play(discord.FFmpegPCMAudio('./Music/' + bienvenue))
             sound = MP3(str('./Music/' + bienvenue))
