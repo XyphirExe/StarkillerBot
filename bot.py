@@ -105,7 +105,7 @@ async def on_ready():
         vc = await readyChannel.connect()
     audiofile = 'ready.mp3'
     vc.play(discord.FFmpegPCMAudio('./Music/' + audiofile))
-    sound = MP3(str(audiofile))
+    sound = MP3(str('./Music/' + audiofile))
     time = int(sound.info.length)
     await asyncio.sleep(int(time) + int(5))
     await vc.disconnect()
@@ -152,7 +152,7 @@ async def on_voice_state_update(member, before, after):
                 vc = await goneFrom.connect()
                 audioFileName = str('gone.mp3')
                 vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
-                sound = MP3(str(audioFileName))
+                sound = MP3(str('./Music/' + audioFileName))
                 time = int(sound.info.length)
                 await asyncio.sleep(time + 5)
                 await vc.disconnect()
@@ -169,7 +169,7 @@ async def on_voice_state_update(member, before, after):
         if after.channel == bienvenueChannel:
             vc = await bienvenueChannel.connect()
             vc.play(discord.FFmpegPCMAudio('./Music/' + bienvenue))
-            sound = MP3(str(bienvenue))
+            sound = MP3(str('./Music/' + bienvenue))
             time = int(sound.info.length)
             await asyncio.sleep(time + 5)
             await vc.disconnect()
@@ -186,7 +186,7 @@ async def play(ctx, *, audioFileName):
         vc = await fromchannel.connect()
     audioFileName = audioFileName + ".mp3"
     vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
-    sound = MP3(str(audioFileName))
+    sound = MP3(str('./Music/' + audioFileName))
     time = int(sound.info.length)
     await asyncio.sleep(int(time) + int(5))
     await vc.disconnect()
