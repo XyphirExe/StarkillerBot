@@ -4,6 +4,11 @@ import asyncio
 from mutagen.mp3 import MP3
 from discord import opus
 
+bienvenue = str('bienvenue')
+
+channelBienvenue = int(582257399243472921)
+
+channelReady = int(582257399243472921)
 
 TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XOnQSQ.5ThIMYGWTOoMISOomp1PNz1geJk"
 
@@ -98,8 +103,8 @@ async def on_ready():
     readyChannel = client.get_channel(int(channelReady))
     if vc is None:
         vc = await readyChannel.connect()
-    audiofile = 'my_body_is_ready2.mp3'
-    vc.play(discord.FFmpegPCMAudio(audiofile))
+    audiofile = 'ready.mp3'
+    vc.play(discord.FFmpegPCMAudio('./Music/' + audiofile))
     sound = MP3(str(audiofile))
     time = int(sound.info.length)
     await asyncio.sleep(int(time) + int(5))
@@ -146,7 +151,7 @@ async def on_voice_state_update(member, before, after):
             if vc.is_playing() is False:
                 vc = await goneFrom.connect()
                 audioFileName = str('gone.mp3')
-                vc.play(discord.FFmpegPCMAudio(audioFileName))
+                vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
                 sound = MP3(str(audioFileName))
                 time = int(sound.info.length)
                 await asyncio.sleep(time + 5)
@@ -163,7 +168,7 @@ async def on_voice_state_update(member, before, after):
     if member.id != client.user.id:
         if after.channel == bienvenueChannel:
             vc = await bienvenueChannel.connect()
-            vc.play(discord.FFmpegPCMAudio(bienvenue))
+            vc.play(discord.FFmpegPCMAudio('./Music/' + bienvenue))
             sound = MP3(str(bienvenue))
             time = int(sound.info.length)
             await asyncio.sleep(time + 5)
@@ -180,7 +185,7 @@ async def play(ctx, *, audioFileName):
     if vc.is_connected() is False:
         vc = await fromchannel.connect()
     audioFileName = audioFileName + ".mp3"
-    vc.play(discord.FFmpegPCMAudio(audioFileName))
+    vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
     sound = MP3(str(audioFileName))
     time = int(sound.info.length)
     await asyncio.sleep(int(time) + int(5))
