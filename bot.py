@@ -4,11 +4,6 @@ import asyncio
 from mutagen.mp3 import MP3
 from discord import opus
 
-bienvenue = str('bienvenue')
-
-channelBienvenue = int(582257399243472921)
-
-channelReady = int(582257399243472921)
 
 TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XOnQSQ.5ThIMYGWTOoMISOomp1PNz1geJk"
 
@@ -22,8 +17,8 @@ global bienvenue
 global channelBienvenue
 global channelReady
 
-'''
-bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossier "Musiques"\nElle sera utilisée comme musique de bienvenue sur un salon vocal précis :\n'))
+
+bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossier "Music"\nElle sera utilisée comme musique de bienvenue sur un salon vocal précis :\n'))
 bienvenue += '.mp3'
 testBienvenue = int(0)
 while testBienvenue == 0:
@@ -45,7 +40,7 @@ while testReady == 0:
     else:
         print("> Erreur, il faut un ID de salon textuel. (nombre à 18 digits)\n")
         testReady = int(0)
-'''
+
 
 listConnectedChannels = []
 vc = None
