@@ -15,6 +15,7 @@ global listConnectedChannels
 global bienvenue
 global channelBienvenue
 global channelReady
+global alreadyLaunched
 
 bienvenue = str('bienvenue')
 
@@ -52,6 +53,7 @@ vc = None
 ChannelAlpha = str("0")
 ChannelBeta = str("0")
 setChannels = int(0)
+alreadyLaunched = int(0)
 
 
 OPUS_LIBRARIES = ['libopus-0.x86.dll', 'libopus-0.x64.dll',
@@ -217,69 +219,75 @@ async def disconnect(ctx):
 
 @client.command()
 async def quiz(ctx):
-    await ctx.send("**QUIZ: L'HISTOIRE DES JEUX VIDÉOS**\n**Et c'est parti pour le quiz !**")
-    score = 0
-    await ctx.send("**QUESTION 1:** Quel est le tout premier jeu-vidéo sur écran de l'histoire ?\nA: **Space Invaders**\nB: **Pong**\nC: **OXO**\nD: **Programme de dames de C. Strachey**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
-        answer = message.content
-    if answer.startswith('C'):
-        await ctx.send("**En effet**, il s'agit d'un jeu de morpion sorti en 1952.\n ")
-        score += 1
+    global alreadyLaunched
+    if alreadyLaunched == int(1):
+        return None
     else:
-        await ctx.send('**Et non**, le tout premier jeu sur écran est OXO, un jeu de morpion sorti en 1952.\n ')
-    await ctx.send("\n**QUESTION 2:** Quelle est la toute première réelle console de l'histoire ?\nA: **Magnavox Odyssey**\nB: **Color TV-Game 6**\nC: **Ping-O-Tronic**\nD: **VideoSport MK2**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
+        alreadyLaunched = int(1)
+        await ctx.send("**QUIZ: L'HISTOIRE DES JEUX VIDÉOS**\n**Et c'est parti pour le quiz !\nLe quiz ne se termien que lorsque toutes les questions auront une réponse.**")
+        score = 0
+        await ctx.send("**QUESTION 1:** Quel est le tout premier jeu-vidéo sur écran de l'histoire ?\nA: **Space Invaders**\nB: **Pong**\nC: **OXO**\nD: **Programme de dames de C. Strachey**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
         answer = message.content
-    if answer.startswith('A'):
-        await ctx.send("Commercialisée en 1972, il s'agit **en effet** de la toute première console.")
-        score += 1
-    else:
-        await ctx.send('**Et non**, la toute première réelle console est la Magnavox Odyssey, sortie en 1972.')
-    await ctx.send("**QUESTION 3:** Parmis les entreprises suivantes laquelle a traversée toutes les générations de consoles de jeu ?\nA: **Microsoft**\nB: **Sega**\nC: **Sony**\nD: **Nintendo**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('C'):
+            await ctx.send("**En effet**, il s'agit d'un jeu de morpion sorti en 1952.\n ")
+            score += 1
+        else:
+            await ctx.send('**Et non**, le tout premier jeu sur écran est OXO, un jeu de morpion sorti en 1952.\n ')
+        await ctx.send("\n**QUESTION 2:** Quelle est la toute première réelle console de l'histoire ?\nA: **Magnavox Odyssey**\nB: **Color TV-Game 6**\nC: **Ping-O-Tronic**\nD: **VideoSport MK2**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
         answer = message.content
-    if answer.startswith('D'):
-        await ctx.send("**Et oui**, c'est depuis 1977 avec la Color TV-Game 6 jusqu'à aujourd'hui avec la Nintendo Switch que Nintendo a parcouru absolument toutes les générations de consoles de l'histoire.\n ")
-        score += 1
-    else:
-        await ctx.send("**Et non**, seul Nintendo a traversé toutes les générations de consoles, de 1977 à aujourd'hui.")
-    await ctx.send("**QUESTION 4:** Quel est le jeu le plus vendu de tous les temps ?\nA: **Minecraft**\nB: **Grand Theft Auto V**\nC: **Wii Sports**\nD: **Tetris**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('A'):
+            await ctx.send("Commercialisée en 1972, il s'agit **en effet** de la toute première console.")
+            score += 1
+        else:
+            await ctx.send('**Et non**, la toute première réelle console est la Magnavox Odyssey, sortie en 1972.')
+        await ctx.send("**QUESTION 3:** Parmis les entreprises suivantes laquelle a traversée toutes les générations de consoles de jeu ?\nA: **Microsoft**\nB: **Sega**\nC: **Sony**\nD: **Nintendo**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
         answer = message.content
-    if answer.startswith('A'):
-        await ctx.send("**C'est exact !** Ce jeu s'est écoulé à plus de 176 M de ventes !\n ")
-        score += 1
-    else:
-        await ctx.send("**Malheureusement**, aucun jeu vidéo n'a réussi à détroner Minecraft et ses 176 M de ventes.\n ")
-    await ctx.send("**QUESTION 5 FINALE:** Quelle est la console de jeu la plus vendue de tous les temps ?\nA: **PlayStation**\nB: **Game Boy / Game Boy Color**\nC: **PlayStation 2**\nD: **Nintendo DS**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('D'):
+            await ctx.send("**Et oui**, c'est depuis 1977 avec la Color TV-Game 6 jusqu'à aujourd'hui avec la Nintendo Switch que Nintendo a parcouru absolument toutes les générations de consoles de l'histoire.\n ")
+            score += 1
+        else:
+            await ctx.send("**Et non**, seul Nintendo a traversé toutes les générations de consoles, de 1977 à aujourd'hui.")
+        await ctx.send("**QUESTION 4:** Quel est le jeu le plus vendu de tous les temps ?\nA: **Minecraft**\nB: **Grand Theft Auto V**\nC: **Wii Sports**\nD: **Tetris**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
         answer = message.content
-    if answer.startswith('C'):
-        await ctx.send("**Et oui**, malgré le fait que la Nintendo DS tende à se rapprocher des ventes de la PS2 ( seulement 2 M d'écart ), c'est la console de Sony qui détient le reccord de 157 M de ventes.\n ")
-        score += 1
-    else:
-        await ctx.send("**Non...** C'est la PS2 qui détient le reccord avec 157 M de ventes.\n ")
-    await ctx.send(f'Le quiz est terminé, vous avez un score de {score} point(s) !\n ')
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('A'):
+            await ctx.send("**C'est exact !** Ce jeu s'est écoulé à plus de 176 M de ventes !\n ")
+            score += 1
+        else:
+            await ctx.send("**Malheureusement**, aucun jeu vidéo n'a réussi à détroner Minecraft et ses 176 M de ventes.\n ")
+        await ctx.send("**QUESTION 5 FINALE:** Quelle est la console de jeu la plus vendue de tous les temps ?\nA: **PlayStation**\nB: **Game Boy / Game Boy Color**\nC: **PlayStation 2**\nD: **Nintendo DS**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+        answer = message.content
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('C'):
+            await ctx.send("**Et oui**, malgré le fait que la Nintendo DS tende à se rapprocher des ventes de la PS2 ( seulement 2 M d'écart ), c'est la console de Sony qui détient le reccord de 157 M de ventes.\n ")
+            score += 1
+        else:
+            await ctx.send("**Non...** C'est la PS2 qui détient le reccord avec 157 M de ventes.\n ")
+        await ctx.send(f'Le quiz est terminé, vous avez un score de {score} point(s) !\n ')
+        alreadyLaunched = int(0)
 
 
 @client.command()
