@@ -145,36 +145,29 @@ async def setstatus(ctx, type=str("Nothing"), url=str(""), *, newStatus=str(""))
 @client.event
 async def on_voice_state_update(member, before, after):
     global vc
-    goneFrom = before.channel
-    if member.id != client.user.id:
-        if before.channel == goneFrom and after.channel != before.channel:
-            if vc.is_playing() is False:
-                vc = await goneFrom.connect()
-                audioFileName = str('gone.mp3')
-                vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
-                sound = MP3(str('./Music/' + audioFileName))
-                time = int(sound.info.length)
-                await asyncio.sleep(time + 5)
-                await vc.disconnect()
-    else:
-        None
-
-
-@client.event
-async def on_voice_state_update(member, before, after):
     global bienvenue
     global channelBienvenue
     bienvenueChannel = client.get_channel(int(channelBienvenue))
-    if member.id != client.user.id:
-        if after.channel == bienvenueChannel:
+    goneFrom = before.channel
+    if member.id != client.user.id and after.channel != before.channel:
+        if vc.is_connected() is False:
+            vc = await goneFrom.connect()
+        if vc.is_playing() is False:
+            audioFileName = str('gone.mp3')
+            vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
+            sound = MP3(str('./Music/' + audioFileName))
+            time = int(sound.info.length)
+            await asyncio.sleep(time + 5)
+            await vc.disconnect()
+    elif member.id != client.user.id and after.channel == bienvenueChannel:
+        if vc.is_connected() is False:
             vc = await bienvenueChannel.connect()
+        if vc.is_playing() is False:
             vc.play(discord.FFmpegPCMAudio('./Music/' + bienvenue))
             sound = MP3(str('./Music/' + bienvenue))
             time = int(sound.info.length)
             await asyncio.sleep(time + 5)
             await vc.disconnect()
-    else:
-        None
 
 
 @client.command()
