@@ -148,8 +148,8 @@ async def on_voice_state_update(member, before, after):
     global bienvenue
     global channelBienvenue
     bienvenueChannel = client.get_channel(int(channelBienvenue))
-    goneFrom = before.channel
-    if member.id != client.user.id and after.channel != before.channel:
+    if member.id != client.user.id and after.channel is None and before.channel is not None:
+        goneFrom = before.channel
         if vc.is_connected() is False:
             vc = await goneFrom.connect()
         if vc.is_playing() is False:
