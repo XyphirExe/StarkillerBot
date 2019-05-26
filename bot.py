@@ -12,7 +12,7 @@ channelReady = int(582257399243472921)
 
 TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XOnQSQ.5ThIMYGWTOoMISOomp1PNz1geJk"
 
-client = commands.Bot(command_prefix=str(input("Préfixe du bot (utilisé pour l'invoquer) :\n")))
+client = commands.Bot(command_prefix='SK')
 
 
 global setChannels
