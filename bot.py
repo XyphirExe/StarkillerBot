@@ -4,10 +4,9 @@ import asyncio
 from mutagen.mp3 import MP3
 from discord import opus
 
-
 TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XOnQSQ.5ThIMYGWTOoMISOomp1PNz1geJk"
 
-client = commands.Bot(command_prefix=str(input("Préfixe du bot (utilisé pour l'invoquer) :\n")))
+client = commands.Bot(command_prefix='SK')
 
 
 global setChannels
@@ -16,9 +15,10 @@ global listConnectedChannels
 global bienvenue
 global channelBienvenue
 global channelReady
+global alreadyLaunched
 
 
-bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossier "Music"\nElle sera utilisée comme musique de bienvenue sur un salon vocal précis :\n'))
+bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossier "Musiques"\nElle sera utilisée comme musique de bienvenue sur un salon vocal précis :\n'))
 bienvenue += '.mp3'
 testBienvenue = int(0)
 while testBienvenue == 0:
@@ -47,6 +47,7 @@ vc = None
 ChannelAlpha = str("0")
 ChannelBeta = str("0")
 setChannels = int(0)
+alreadyLaunched = int(0)
 
 
 OPUS_LIBRARIES = ['libopus-0.x86.dll', 'libopus-0.x64.dll',
@@ -60,25 +61,13 @@ def load_opus_lib(opus_libraries=OPUS_LIBRARIES):
                 opus.load_opus(opus_lib)
                 return
             except OSError:
+                print("<<!>> Erreur, je n'ai pas pu chargé l'opus {}".format(opus_lib))
                 pass
-        print("<<!>> Erreur, je n'ai pas pu chargé l'opus {}".format(opus_lib))
-
-
-async def stopMusic():
-    await client.wait_until_ready()
-
-    while not client.is_closed():
-        if vc is None:
-            None
-        elif vc.is_connected() is True and vc.is_playing() is False:
-            vc.stop()
-            await vc.disconnect()
-        await asyncio.sleep(300)
 
 
 async def loop():
     await client.wait_until_ready()
-    channel = client.get_channel(577970026468999178)
+    channel = client.get_channel(582344339225837579)
     loopTime = 1
 
     while not client.is_closed():
@@ -100,10 +89,11 @@ async def on_ready():
         vc = await readyChannel.connect()
     audiofile = 'ready.mp3'
     vc.play(discord.FFmpegPCMAudio('./Music/' + audiofile))
-    sound = MP3(str(audiofile))
+    sound = MP3(str('./Music/' + audiofile))
     time = int(sound.info.length)
     await asyncio.sleep(int(time) + int(5))
-    await vc.disconnect()
+    if vc.is_playing() is False:
+        await vc.disconnect()
 
 
 @client.command()
@@ -113,7 +103,7 @@ async def ping(ctx):
 
 @client.command()
 async def echo(ctx):
-    echoText = ctx.message.content[len(ctx.prefix) + len(ctx.invoked_with):]
+    echoText = ctx.message.content[len(ctx.prefix) + len(ctx.invoked_with) + len(" "):]
     if echoText == '':
         await ctx.send("Il semblerait que rien n'est sorti de votre clavier! :)")
     else:
@@ -140,51 +130,71 @@ async def setstatus(ctx, type=str("Nothing"), url=str(""), *, newStatus=str(""))
 @client.event
 async def on_voice_state_update(member, before, after):
     global vc
-    goneFrom = before.channel
-    if member.id != client.user.id:
-        if before.channel == goneFrom and after.channel != before.channel:
-            if vc.is_playing() is False:
-                vc = await goneFrom.connect()
-                audioFileName = str('gone.mp3')
-                vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
-                sound = MP3(str(audioFileName))
-                time = int(sound.info.length)
-                await asyncio.sleep(time + 5)
-                await vc.disconnect()
-    else:
-        None
-
-
-@client.event
-async def on_voice_state_update(member, before, after):
     global bienvenue
     global channelBienvenue
     bienvenueChannel = client.get_channel(int(channelBienvenue))
-    if member.id != client.user.id:
-        if after.channel == bienvenueChannel:
-            vc = await bienvenueChannel.connect()
-            vc.play(discord.FFmpegPCMAudio('./Music/' + bienvenue))
-            sound = MP3(str(bienvenue))
+    if member.id != client.user.id and after.channel is None and before.channel is not None:
+        goneFrom = before.channel
+        if vc.is_connected() is False:
+            vc = await goneFrom.connect()
+        if vc.is_playing() is False:
+            audioFileName = str('gone.mp3')
+            vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
+            sound = MP3(str('./Music/' + audioFileName))
             time = int(sound.info.length)
             await asyncio.sleep(time + 5)
-            await vc.disconnect()
-    else:
-        None
+            if vc.is_playing() is False:
+                await vc.disconnect()
+    elif member.id != client.user.id and after.channel == bienvenueChannel:
+        if vc.is_connected() is False:
+            vc = await bienvenueChannel.connect()
+        if vc.is_playing() is False:
+            await asyncio.sleep(2)
+            bienvenue += str('.mp3')
+            vc.play(discord.FFmpegPCMAudio('./Music/' + bienvenue))
+            sound = MP3(str('./Music/' + bienvenue))
+            time = int(sound.info.length)
+            await asyncio.sleep(time + 5)
+            if vc.is_playing() is False:
+                await vc.disconnect()
+
+
+@client.command()
+async def musiques(ctx):
+    musics1 = open("./Music/playlist1.txt", "r")
+    if musics1.mode == "r":
+        list = musics1.read()
+        await ctx.author.send("```" + list + "```")
+    musics2 = open("./Music/playlist2.txt", "r")
+    if musics2.mode == "r":
+        list = musics2.read()
+        await ctx.author.send("```" + list + "```")
+    await ctx.send("<@{}> je vous ai envoyé un message privé contenant la liste des musiques disponibles!".format(ctx.author.id))
 
 
 @client.command()
 async def play(ctx, *, audioFileName):
     global vc
+    global musicPlaylist
     author = ctx.author
     fromchannel = author.voice.channel
     if vc.is_connected() is False:
         vc = await fromchannel.connect()
-    audioFileName = audioFileName + ".mp3"
-    vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
-    sound = MP3(str(audioFileName))
-    time = int(sound.info.length)
-    await asyncio.sleep(int(time) + int(5))
-    await vc.disconnect()
+    audioFileName = "./Music/" + audioFileName + ".mp3"
+    try:
+        exist = open(audioFileName)
+    except:
+        await ctx.send("Cette musique n'existe pas dans le répertoir.\nTapez **SKmusiques** pour connaître le répertoire de musique.")
+    else:
+        if vc.is_playing() is True:
+            await ctx.send("Je ne peux gérer qu'une seule musique à la fois pour le moment, désolé! ;(")
+        else:
+            vc.play(discord.FFmpegPCMAudio(audioFileName))
+            sound = MP3(str(audioFileName))
+            time = int(sound.info.length)
+            await asyncio.sleep(int(time) + int(5))
+    if vc.is_playing() is False:
+        await vc.disconnect()
 
 
 @client.command()
@@ -217,69 +227,75 @@ async def disconnect(ctx):
 
 @client.command()
 async def quiz(ctx):
-    await ctx.send("**QUIZ: L'HISTOIRE DES JEUX VIDÉOS**\n**Et c'est parti pour le quiz !**")
-    score = 0
-    await ctx.send("**QUESTION 1:** Quel est le tout premier jeu-vidéo sur écran de l'histoire ?\nA: **Space Invaders**\nB: **Pong**\nC: **OXO**\nD: **Programme de dames de C. Strachey**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
-        answer = message.content
-    if answer.startswith('C'):
-        await ctx.send("**En effet**, il s'agit d'un jeu de morpion sorti en 1952.\n ")
-        score += 1
+    global alreadyLaunched
+    if alreadyLaunched == int(1):
+        return None
     else:
-        await ctx.send('**Et non**, le tout premier jeu sur écran est OXO, un jeu de morpion sorti en 1952.\n ')
-    await ctx.send("\n**QUESTION 2:** Quelle est la toute première réelle console de l'histoire ?\nA: **Magnavox Odyssey**\nB: **Color TV-Game 6**\nC: **Ping-O-Tronic**\nD: **VideoSport MK2**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
+        alreadyLaunched = int(1)
+        await ctx.send("**QUIZ: L'HISTOIRE DES JEUX VIDÉOS**\n**Et c'est parti pour le quiz !\nLe quiz ne se termien que lorsque toutes les questions auront une réponse.**")
+        score = 0
+        await ctx.send("**QUESTION 1:** Quel est le tout premier jeu-vidéo sur écran de l'histoire ?\nA: **Space Invaders**\nB: **Pong**\nC: **OXO**\nD: **Programme de dames de C. Strachey**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
         answer = message.content
-    if answer.startswith('A'):
-        await ctx.send("Commercialisée en 1972, il s'agit **en effet** de la toute première console.")
-        score += 1
-    else:
-        await ctx.send('**Et non**, la toute première réelle console est la Magnavox Odyssey, sortie en 1972.')
-    await ctx.send("**QUESTION 3:** Parmis les entreprises suivantes laquelle a traversée toutes les générations de consoles de jeu ?\nA: **Microsoft**\nB: **Sega**\nC: **Sony**\nD: **Nintendo**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('C'):
+            await ctx.send("**En effet**, il s'agit d'un jeu de morpion sorti en 1952.\n ")
+            score += 1
+        else:
+            await ctx.send('**Et non**, le tout premier jeu sur écran est OXO, un jeu de morpion sorti en 1952.\n ')
+        await ctx.send("\n**QUESTION 2:** Quelle est la toute première réelle console de l'histoire ?\nA: **Magnavox Odyssey**\nB: **Color TV-Game 6**\nC: **Ping-O-Tronic**\nD: **VideoSport MK2**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
         answer = message.content
-    if answer.startswith('D'):
-        await ctx.send("**Et oui**, c'est depuis 1977 avec la Color TV-Game 6 jusqu'à aujourd'hui avec la Nintendo Switch que Nintendo a parcouru absolument toutes les générations de consoles de l'histoire.\n ")
-        score += 1
-    else:
-        await ctx.send("**Et non**, seul Nintendo a traversé toutes les générations de consoles, de 1977 à aujourd'hui.")
-    await ctx.send("**QUESTION 4:** Quel est le jeu le plus vendu de tous les temps ?\nA: **Minecraft**\nB: **Grand Theft Auto V**\nC: **Wii Sports**\nD: **Tetris**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('A'):
+            await ctx.send("Commercialisée en 1972, il s'agit **en effet** de la toute première console.")
+            score += 1
+        else:
+            await ctx.send('**Et non**, la toute première réelle console est la Magnavox Odyssey, sortie en 1972.')
+        await ctx.send("**QUESTION 3:** Parmis les entreprises suivantes laquelle a traversée toutes les générations de consoles de jeu ?\nA: **Microsoft**\nB: **Sega**\nC: **Sony**\nD: **Nintendo**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
         answer = message.content
-    if answer.startswith('A'):
-        await ctx.send("**C'est exact !** Ce jeu s'est écoulé à plus de 176 M de ventes !\n ")
-        score += 1
-    else:
-        await ctx.send("**Malheureusement**, aucun jeu vidéo n'a réussi à détroner Minecraft et ses 176 M de ventes.\n ")
-    await ctx.send("**QUESTION 5 FINALE:** Quelle est la console de jeu la plus vendue de tous les temps ?\nA: **PlayStation**\nB: **Game Boy / Game Boy Color**\nC: **PlayStation 2**\nD: **Nintendo DS**")
-    message = await client.wait_for('message')
-    answer = message.content
-    while message.channel != ctx.channel or message.author != ctx.author or len(answer) != 1:
-        await ctx.send("Il faut répondre avec seulement une lettre!")
-        message = await client.wait_for('message')
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('D'):
+            await ctx.send("**Et oui**, c'est depuis 1977 avec la Color TV-Game 6 jusqu'à aujourd'hui avec la Nintendo Switch que Nintendo a parcouru absolument toutes les générations de consoles de l'histoire.\n ")
+            score += 1
+        else:
+            await ctx.send("**Et non**, seul Nintendo a traversé toutes les générations de consoles, de 1977 à aujourd'hui.")
+        await ctx.send("**QUESTION 4:** Quel est le jeu le plus vendu de tous les temps ?\nA: **Minecraft**\nB: **Grand Theft Auto V**\nC: **Wii Sports**\nD: **Tetris**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
         answer = message.content
-    if answer.startswith('C'):
-        await ctx.send("**Et oui**, malgré le fait que la Nintendo DS tende à se rapprocher des ventes de la PS2 ( seulement 2 M d'écart ), c'est la console de Sony qui détient le reccord de 157 M de ventes.\n ")
-        score += 1
-    else:
-        await ctx.send("**Non...** C'est la PS2 qui détient le reccord avec 157 M de ventes.\n ")
-    await ctx.send(f'Le quiz est terminé, vous avez un score de {score} point(s) !\n ')
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('A'):
+            await ctx.send("**C'est exact !** Ce jeu s'est écoulé à plus de 176 M de ventes !\n ")
+            score += 1
+        else:
+            await ctx.send("**Malheureusement**, aucun jeu vidéo n'a réussi à détroner Minecraft et ses 176 M de ventes.\n ")
+        await ctx.send("**QUESTION 5 FINALE:** Quelle est la console de jeu la plus vendue de tous les temps ?\nA: **PlayStation**\nB: **Game Boy / Game Boy Color**\nC: **PlayStation 2**\nD: **Nintendo DS**")
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+        answer = message.content
+        while answer != str('A') and answer != str('B') and answer != str('C') and answer != str('D'):
+            await ctx.send('Il faut répondre avec seulement une des lettres!')
+            message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
+            answer = message.content
+        if answer.startswith('C'):
+            await ctx.send("**Et oui**, malgré le fait que la Nintendo DS tende à se rapprocher des ventes de la PS2 ( seulement 2 M d'écart ), c'est la console de Sony qui détient le reccord de 157 M de ventes.\n ")
+            score += 1
+        else:
+            await ctx.send("**Non...** C'est la PS2 qui détient le reccord avec 157 M de ventes.\n ")
+        await ctx.send(f'Le quiz est terminé, vous avez un score de {score} point(s) !\n ')
+        alreadyLaunched = int(0)
 
 
 @client.command()
@@ -301,7 +317,7 @@ async def addCChannel(ctx, *, id=str("Rien")):
 async def removeCChannel(ctx, *, id=str("Rien")):
     global setChannels
     global listConnectedChannels
-    if len(id) == 18 and id.isdigit() and str(id) in listConnectedChannels:
+    if len(id) == 18 and id.isdigit() and str(id) not in listConnectedChannels:
         removeChannel = client.get_channel(int(id))
         fromGuild = removeChannel.guild
         listConnectedChannels.remove(id)
@@ -348,6 +364,5 @@ async def on_message_delete(message):
     await client.process_commands(message)
 
 
-client.loop.create_task(stopMusic())
 client.loop.create_task(loop())
 client.run(TOKEN)
