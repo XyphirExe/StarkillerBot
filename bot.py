@@ -71,17 +71,6 @@ def load_opus_lib(opus_libraries=OPUS_LIBRARIES):
         print("<<!>> Erreur, je n'ai pas pu chargé l'opus {}".format(opus_lib))
 
 
-async def stopMusic():
-    await client.wait_until_ready()
-
-    while not client.is_closed():
-        if vc is None:
-            None
-        elif vc.is_connected() is True and vc.is_playing() is False:
-            vc.stop()
-            await vc.disconnect()
-        await asyncio.sleep(300)
-
 
 async def loop():
     await client.wait_until_ready()
@@ -93,6 +82,7 @@ async def loop():
         print("Looped!")
         await channel.send("Looped!" + str(loopTime))
         loopTime += 1
+
 
 
 @client.event
@@ -356,6 +346,5 @@ async def on_message_delete(message):
     await client.process_commands(message)
 
 
-client.loop.create_task(stopMusic())
 client.loop.create_task(loop())
 client.run(TOKEN)
