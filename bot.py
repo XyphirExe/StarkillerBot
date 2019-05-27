@@ -158,7 +158,7 @@ async def on_voice_state_update(member, before, after):
             await asyncio.sleep(2)
             bienvenue += str('.mp3')
             vc.play(discord.FFmpegPCMAudio('./Music/' + bienvenue))
-            sound = MP3(str('./Music/' + bienvenue))
+            sound = MP3(str('./Music/' + bienvenue + '.mp3'))
             time = int(sound.info.length)
             await asyncio.sleep(time + 5)
             await vc.disconnect()
