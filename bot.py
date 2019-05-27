@@ -37,7 +37,7 @@ async def ping():
 
 @bot.command()
 async def bottles(ctx, amount: typing.Optional[int] = 99, *, liquid="beer"):
-    await ctx.send('{} bouteilles de {} dans ta mère! Cheh!'.format(amount, liquid))
+    await ctx.send('Tu as {} bouteilles de {}!'.format(amount, liquid))
 
 @bot.command()
 async def slap(ctx, members: commands.Greedy[discord.Member], *, reason='no reason'):
@@ -60,10 +60,16 @@ class JoinDistanceConverter(commands.MemberConverter):
 
 @bot.command()
 async def delta(ctx, *, member: JoinDistanceConverter):
-    is_new = member.delta.days < 100
+    is_new = member.delta.days < 50
     if is_new:
         await ctx.send("Yo le nouveau!")
     else:
-        await ctx.send("Hmmm")
+        await ctx.send("Hmmm, ça faisait longtemps.")
+
+@bot.command()
+async def on_message(message):
+    if 
+
+
 
 client.run(TOKEN)
