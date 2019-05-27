@@ -67,9 +67,8 @@ def load_opus_lib(opus_libraries=OPUS_LIBRARIES):
                 opus.load_opus(opus_lib)
                 return
             except OSError:
+                print("<<!>> Erreur, je n'ai pas pu chargé l'opus {}".format(opus_lib))
                 pass
-        print("<<!>> Erreur, je n'ai pas pu chargé l'opus {}".format(opus_lib))
-
 
 
 async def loop():
@@ -82,7 +81,6 @@ async def loop():
         print("Looped!")
         await channel.send("Looped!" + str(loopTime))
         loopTime += 1
-
 
 
 @client.event
@@ -100,7 +98,8 @@ async def on_ready():
     sound = MP3(str('./Music/' + audiofile))
     time = int(sound.info.length)
     await asyncio.sleep(int(time) + int(5))
-    await vc.disconnect()
+    if vc.is_playing() is False:
+        await vc.disconnect()
 
 
 @client.command()
@@ -110,7 +109,7 @@ async def ping(ctx):
 
 @client.command()
 async def echo(ctx):
-    echoText = ctx.message.content[len(ctx.prefix) + len(ctx.invoked_with):]
+    echoText = ctx.message.content[len(ctx.prefix) + len(ctx.invoked_with) + len(" "):]
     if echoText == '':
         await ctx.send("Il semblerait que rien n'est sorti de votre clavier! :)")
     else:
@@ -150,32 +149,58 @@ async def on_voice_state_update(member, before, after):
             sound = MP3(str('./Music/' + audioFileName))
             time = int(sound.info.length)
             await asyncio.sleep(time + 5)
-            await vc.disconnect()
+            if vc.is_playing() is False:
+                await vc.disconnect()
     elif member.id != client.user.id and after.channel == bienvenueChannel:
         if vc.is_connected() is False:
             vc = await bienvenueChannel.connect()
         if vc.is_playing() is False:
             await asyncio.sleep(2)
-            vc.play(discord.FFmpegPCMAudio('./Music/' + bienvenue + '.mp3'))
-            sound = MP3(str('./Music/' + bienvenue + '.mp3'))
+            bienvenue += str('.mp3')
+            vc.play(discord.FFmpegPCMAudio('./Music/' + bienvenue))
+            sound = MP3(str('./Music/' + bienvenue))
             time = int(sound.info.length)
             await asyncio.sleep(time + 5)
-            await vc.disconnect()
+            if vc.is_playing() is False:
+                await vc.disconnect()
+
+
+@client.command()
+async def musiques(ctx):
+    musics1 = open("./Music/playlist1.txt", "r")
+    if musics1.mode == "r":
+        list = musics1.read()
+        await ctx.author.send("```" + list + "```")
+    musics2 = open("./Music/playlist2.txt", "r")
+    if musics2.mode == "r":
+        list = musics2.read()
+        await ctx.author.send("```" + list + "```")
+    await ctx.send("<@{}> je vous ai envoyé un message privé contenant la liste des musiques disponibles!".format(ctx.author.id))
 
 
 @client.command()
 async def play(ctx, *, audioFileName):
     global vc
+    global musicPlaylist
     author = ctx.author
     fromchannel = author.voice.channel
     if vc.is_connected() is False:
         vc = await fromchannel.connect()
-    audioFileName = audioFileName + ".mp3"
-    vc.play(discord.FFmpegPCMAudio('./Music/' + audioFileName))
-    sound = MP3(str('./Music/' + audioFileName))
-    time = int(sound.info.length)
-    await asyncio.sleep(int(time) + int(5))
-    await vc.disconnect()
+    audioFileName = "./Music/" + audioFileName + ".mp3"
+    try:
+        exist = open(audioFileName)
+    except:
+        await ctx.send("Cette musique n'existe pas dans le répertoir.\nTapez **SKmusiques** pour connaître le répertoire de musique.")
+    else:
+        if vc.is_playing() is True:
+            await ctx.send("Je ne peux gérer qu'une seule musique à la fois pour le moment, désolé! ;(")
+        else:
+            vc.play(discord.FFmpegPCMAudio(audioFileName))
+            sound = MP3(str(audioFileName))
+            time = int(sound.info.length)
+            await asyncio.sleep(int(time) + int(5))
+    if vc.is_playing() is False:
+        await vc.disconnect()
 
 
 @client.command()
@@ -298,7 +323,7 @@ async def addCChannel(ctx, *, id=str("Rien")):
 async def removeCChannel(ctx, *, id=str("Rien")):
     global setChannels
     global listConnectedChannels
-    if len(id) == 18 and id.isdigit() and str(id) in listConnectedChannels:
+    if len(id) == 18 and id.isdigit() and str(id) not in listConnectedChannels:
         removeChannel = client.get_channel(int(id))
         fromGuild = removeChannel.guild
         listConnectedChannels.remove(id)
