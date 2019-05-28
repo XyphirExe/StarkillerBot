@@ -1,14 +1,17 @@
+#On import les modules et tout le nécessaire
 import discord
 from discord.ext import commands
 import asyncio
 from mutagen.mp3 import MP3
 from discord import opus
 
+#Token spécifique à notre bot créé sur le Discord Developer Portal
 TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XOnQSQ.5ThIMYGWTOoMISOomp1PNz1geJk"
 
-client = commands.Bot(command_prefix='SK')
+#Dénomination du bot par "client" et dénomination de son préfixe par "SK" et "sk"
+client = commands.Bot(command_prefix=['SK', 'sk'])
 
-
+#On déclare que ces variables suivantes sont globales et peuvent être utilisées dans certaines fonctions du code
 global setChannels
 global vc
 global listConnectedChannels
