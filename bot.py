@@ -22,6 +22,7 @@ global alreadyLaunched
 
 #Dans cette version ce variables sont autmatiquements choisies
 bienvenue = str('bienvenue')
+bienvenue += '.mp3'
 
 channelBienvenue = int(582257399243472921)
 
