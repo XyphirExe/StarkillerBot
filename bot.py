@@ -335,7 +335,7 @@ async def addCChannel(ctx, *, id=str("Rien")):
 async def removeCChannel(ctx, *, id=str("Rien")):
     global setChannels
     global listConnectedChannels
-    if len(id) == 18 and id.isdigit() and str(id) not in listConnectedChannels:
+    if len(id) == 18 and id.isdigit() and str(id) in listConnectedChannels:
         removeChannel = client.get_channel(int(id))
         fromGuild = removeChannel.guild
         listConnectedChannels.remove(id)
@@ -345,7 +345,7 @@ async def removeCChannel(ctx, *, id=str("Rien")):
     else:
         await ctx.send("Erreur, il faut un ID de salon textuel existant dans la liste d'ID. (nombre à 18 digits)")
 
-#Lorsque qu'un message d'un salon textuel dont l'ID est présent dans la liste "listConnectedChannels" est envoyé il est renvoyé aux autres salons textuels dont leur ID ets présent dans cette liste
+#Lorsqu'un message d'un salon textuel dont l'ID est présent dans la liste "listConnectedChannels" est envoyé il est renvoyé aux autres salons textuels dont leur ID ets présent dans cette liste
 @client.event
 async def on_message(message):
     global setChannels
