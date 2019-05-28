@@ -1,14 +1,17 @@
+#On import les modules et tout le nécessaire
 import discord
 from discord.ext import commands
 import asyncio
 from mutagen.mp3 import MP3
 from discord import opus
 
+#Token spécifique à notre bot créé sur le Discord Developer Portal
 TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XOnQSQ.5ThIMYGWTOoMISOomp1PNz1geJk"
 
-client = commands.Bot(command_prefix='SK')
+#Dénomination du bot par "client" et dénomination de son préfixe par "SK" et "sk"
+client = commands.Bot(command_prefix=['SK', 'sk'])
 
-
+#On déclare que ces variables suivantes sont globales et peuvent être utilisées dans certaines fonctions du code
 global setChannels
 global vc
 global listConnectedChannels
@@ -17,9 +20,11 @@ global channelBienvenue
 global channelReady
 global alreadyLaunched
 
-
-bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossier "Musiques"\nElle sera utilisée comme musique de bienvenue sur un salon vocal précis :\n'))
+#On demande une musique qui sera utilisée comme musique de bienvenue sur un salon vocal précis
+bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossier "Music"\nElle sera utilisée comme musique de bienvenue sur un salon vocal précis :\n'))
 bienvenue += '.mp3'
+
+#On demande l'ID du salon vocal sur lequel nous voulons que le bot lise la musique de bienvenue
 testBienvenue = int(0)
 while testBienvenue == 0:
     channelBienvenue = str(input('> Sélectionnez le salon vocal de bienvenue (ID à 18 digits sur votre serveur Discord) :\n'))
@@ -30,7 +35,7 @@ while testBienvenue == 0:
         print("> Erreur, il faut un ID de salon textuel. (nombre à 18 digits)\n")
         testBienvenue = int(0)
 
-
+#On demande l'ID d'un salon vocal sur lequel le bot annoncera vocalement qu'il est en ligne et est opérationnel
 testReady = int(0)
 while testReady == 0:
     channelReady = str(input('> Sélectionnez le salon vocal pour annoncer que le bot est prêt (ID à 18 digits sur votre serveur Discord) :\n'))
@@ -41,7 +46,7 @@ while testReady == 0:
         print("> Erreur, il faut un ID de salon textuel. (nombre à 18 digits)\n")
         testReady = int(0)
 
-
+#On déclare les variables et on leur attribue une valeur de base
 listConnectedChannels = []
 vc = None
 ChannelAlpha = str("0")
@@ -49,9 +54,8 @@ ChannelBeta = str("0")
 setChannels = int(0)
 alreadyLaunched = int(0)
 
-
-OPUS_LIBRARIES = ['libopus-0.x86.dll', 'libopus-0.x64.dll',
-                  'libopus-0.dll', 'libopus.so.0', 'libopus.0.dylib']
+#On charge les opus pour les OS différents de Windows
+OPUS_LIBRARIES = ['libopus-0.x86.dll', 'libopus-0.x64.dll', 'libopus-0.dll', 'libopus.so.0', 'libopus.0.dylib']
 
 
 def load_opus_lib(opus_libraries=OPUS_LIBRARIES):
@@ -64,7 +68,7 @@ def load_opus_lib(opus_libraries=OPUS_LIBRARIES):
                 print("<<!>> Erreur, je n'ai pas pu chargé l'opus {}".format(opus_lib))
                 pass
 
-
+#Cette fonction permet d'éviter que le bot soit vue comme inactif et soit éteint par un serveur hébergeur (il envoie un message toutes les ~28-29minutes dans un salon  textuel précis)
 async def loop():
     await client.wait_until_ready()
     channel = client.get_channel(582344339225837579)
@@ -76,7 +80,7 @@ async def loop():
         await channel.send("Looped!" + str(loopTime))
         loopTime += 1
 
-
+#Actions qu'effectue le bot un fois opérationnel: il affiche dans la console qu'il est prêt, il affiche aussi son nom et son ID et annonce qu'il est prêt dans le salon vocal demandé auparavant à l'utilisateur du bot
 @client.event
 async def on_ready():
     global vc
@@ -95,12 +99,12 @@ async def on_ready():
     if vc.is_playing() is False:
         await vc.disconnect()
 
-
+#Commande permettant de connaitre la latence du bot
 @client.command()
 async def ping(ctx):
     await ctx.send(f"Pong!\nPfiouu... ça m'a pris {round(client.latency * 1000)} ms à renvoyer la balle!")
 
-
+#Commande qui demande au bot de répéter un mot ou un ensemble de mots
 @client.command()
 async def echo(ctx):
     echoText = ctx.message.content[len(ctx.prefix) + len(ctx.invoked_with) + len(" "):]
@@ -109,7 +113,7 @@ async def echo(ctx):
     else:
         await ctx.send(f"**{echoText}**")
 
-
+#Commande permettant de définir le statut du bot sur Discord
 @client.command()
 async def setstatus(ctx, type=str("Nothing"), url=str(""), *, newStatus=str("")):
     if type == str("Playing"):
@@ -126,7 +130,7 @@ async def setstatus(ctx, type=str("Nothing"), url=str(""), *, newStatus=str(""))
     else:
         await ctx.send("La commande a été mal utilisée.\nPréciser le type d'activité, l'url du stream si c'en est un et/ou la phrase de status. ")
 
-
+#Lorsque le statut vocal d'un utilisateur change le bot se connecte à un salon vocal pour lire un fichier audio
 @client.event
 async def on_voice_state_update(member, before, after):
     global vc
@@ -157,7 +161,7 @@ async def on_voice_state_update(member, before, after):
             if vc.is_playing() is False:
                 await vc.disconnect()
 
-
+#Commande affichant la liste des musiques pouvant être écoutées
 @client.command()
 async def musiques(ctx):
     musics1 = open("./Music/playlist1.txt", "r")
@@ -170,68 +174,71 @@ async def musiques(ctx):
         await ctx.author.send("```" + list + "```")
     await ctx.send("<@{}> je vous ai envoyé un message privé contenant la liste des musiques disponibles!".format(ctx.author.id))
 
-
+#Commande permettant de jouer de la musique dans le salon vocal de celui l'ayant effectuée
 @client.command()
-async def play(ctx, *, audioFileName):
+async def play(ctx, *, audioFileName=str("Nothing")):
     global vc
     global musicPlaylist
     author = ctx.author
-    fromchannel = author.voice.channel
-    if vc.is_connected() is False:
-        vc = await fromchannel.connect()
-    audioFileName = "./Music/" + audioFileName + ".mp3"
-    try:
-        exist = open(audioFileName)
-    except:
-        await ctx.send("Cette musique n'existe pas dans le répertoir.\nTapez **SKmusiques** pour connaître le répertoire de musique.")
+    if author.voice.channel is None:
+        await ctx.send("Vous n'êtes même pas connecté à un salon vocal. >:(")
     else:
-        if vc.is_playing() is True:
-            await ctx.send("Je ne peux gérer qu'une seule musique à la fois pour le moment, désolé! ;(")
+        fromchannel = author.voice.channel
+        if vc.is_connected() is False:
+            vc = await fromchannel.connect()
+        audioFileName = "./Music/" + audioFileName + ".mp3"
+        try:
+            exist = open(audioFileName)
+        except:
+            await ctx.send("Cette musique n'existe pas dans le répertoir.\nTapez **SKmusiques** pour connaître le répertoire de musique.")
         else:
-            vc.play(discord.FFmpegPCMAudio(audioFileName))
-            sound = MP3(str(audioFileName))
-            time = int(sound.info.length)
-            await asyncio.sleep(int(time) + int(5))
-    if vc.is_playing() is False:
-        await vc.disconnect()
+            if vc.is_playing() is True:
+                await ctx.send("Je ne peux gérer qu'une seule musique à la fois pour le moment, désolé! ;(")
+            else:
+                vc.play(discord.FFmpegPCMAudio(audioFileName))
+                sound = MP3(str(audioFileName))
+                time = int(sound.info.length)
+                await asyncio.sleep(int(time) + int(5))
+        if vc.is_playing() is False:
+            await vc.disconnect()
 
-
+#Commande mettant en pause la lecture audio du client vocal du bot
 @client.command()
 async def pause(ctx):
     global vc
     vc.pause()
     await ctx.send("Paused")
 
-
+#Commande reprenantla lecture audio du client vocal du bot
 @client.command()
 async def resume(ctx):
     global vc
     vc.resume()
     await ctx.send("Resumed")
 
-
+#Commande stoppant la lecture audio du client vocal du bot
 @client.command()
 async def stop(ctx):
     global vc
     vc.stop()
     await ctx.send("Stopped")
 
-
+#Commande déconnectant la lecture audio du client vocal du bot
 @client.command()
 async def disconnect(ctx):
     global vc
     await vc.disconnect()
     await ctx.send("Disconnected")
 
-
+#Commande qui lance un quiz dans le salon textuel de et pour l'utilisateur Discord ayant effectuée cette commande
 @client.command()
 async def quiz(ctx):
     global alreadyLaunched
     if alreadyLaunched == int(1):
-        return None
+        pass
     else:
         alreadyLaunched = int(1)
-        await ctx.send("**QUIZ: L'HISTOIRE DES JEUX VIDÉOS**\n**Et c'est parti pour le quiz !\nLe quiz ne se termien que lorsque toutes les questions auront une réponse.**")
+        await ctx.send("**QUIZ: L'HISTOIRE DES JEUX VIDÉO**\n**Et c'est parti pour le quiz !\nLe quiz ne se termine que lorsque toutes les questions auront une réponse.**")
         score = 0
         await ctx.send("**QUESTION 1:** Quel est le tout premier jeu-vidéo sur écran de l'histoire ?\nA: **Space Invaders**\nB: **Pong**\nC: **OXO**\nD: **Programme de dames de C. Strachey**")
         message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and len(message.content) == 1)
@@ -296,7 +303,7 @@ async def quiz(ctx):
         await ctx.send(f'Le quiz est terminé, vous avez un score de {score} point(s) !\n ')
         alreadyLaunched = int(0)
 
-
+#Commande rajoutant une ID à la liste "listConnectedChannels"
 @client.command()
 async def addCChannel(ctx, *, id=str("Rien")):
     global setChannels
@@ -311,7 +318,7 @@ async def addCChannel(ctx, *, id=str("Rien")):
     else:
         await ctx.send("Erreur, il faut un ID de salon textuel existant n'étant pas dans la liste d'ID. (nombre à 18 digits)")
 
-
+#Commande enlevant une ID à la liste "listConnectedChannels"
 @client.command()
 async def removeCChannel(ctx, *, id=str("Rien")):
     global setChannels
@@ -326,7 +333,7 @@ async def removeCChannel(ctx, *, id=str("Rien")):
     else:
         await ctx.send("Erreur, il faut un ID de salon textuel existant dans la liste d'ID. (nombre à 18 digits)")
 
-
+#Lorsque qu'un message d'un salon textuel dont l'ID est présent dans la liste "listConnectedChannels" est envoyé il est renvoyé aux autres salons textuels dont leur ID ets présent dans cette liste
 @client.event
 async def on_message(message):
     global setChannels
@@ -352,7 +359,7 @@ async def on_message(message):
     else:
         await client.process_commands(message)
 
-
+#Lorsqu'un utilisateur supprime un message, ce message est affiché dans la console
 @client.event
 async def on_message_delete(message):
     author = message.author
@@ -362,6 +369,7 @@ async def on_message_delete(message):
     print("|<!>| Ce message de {} dans {} / {} à été supprimé :\n     {}".format(author, guild, channel, content))
     await client.process_commands(message)
 
-
+#Permet la répétition de la fonction "loop()"
 client.loop.create_task(loop())
+#Permet de mettre en ligne le bot avec le "TOKEN"
 client.run(TOKEN)
