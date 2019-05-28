@@ -8,8 +8,10 @@ from discord import opus
 #Token spécifique à notre bot créé sur le Discord Developer Portal
 TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XOnQSQ.5ThIMYGWTOoMISOomp1PNz1geJk"
 
+
 #Dénomination du bot par "client" et dénomination de son préfixe par "SK" et "sk"
 client = commands.Bot(command_prefix=['SK', 'sk'])
+
 
 #On déclare que ces variables suivantes sont globales et peuvent être utilisées dans certaines fonctions du code
 global setChannels
@@ -368,6 +370,7 @@ async def on_message_delete(message):
     channel = message.channel
     print("|<!>| Ce message de {} dans {} / {} à été supprimé :\n     {}".format(author, guild, channel, content))
     await client.process_commands(message)
+
 
 #Permet la répétition de la fonction "loop()"
 client.loop.create_task(loop())
