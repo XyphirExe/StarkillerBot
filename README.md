@@ -1,7 +1,7 @@
 # StarkillerBot
 Dépot distant du bot "Starkiller". Ce bot est notre projet de fin d'année pour la Baccalauréat dans la spécialité Informatique et Science du Numérique.
 
-#Sources qui nous ont aidées
+# Sources qui nous ont aidées
 
 * [Documentation discord.py (API Wrapper pour l'API Discord)] (https://discordpy.readthedocs.io/en/latest/api.html)
 
