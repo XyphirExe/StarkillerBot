@@ -1,5 +1,5 @@
 # StarkillerBot
-Dépot distant du bot "Starkiller". Ce bot est notre projet de fin d'année pour la Baccalauréat dans la spécialité Informatique et Science du Numérique.
+Dépot distant du bot "Starkiller". Ce bot est notre projet de fin d'année pour le Baccalauréat dans la spécialité Informatique et Science du Numérique.
 
 # Sources qui nous ont aidées
 
