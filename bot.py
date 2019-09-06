@@ -6,7 +6,7 @@ from mutagen.mp3 import MP3
 from discord import opus
 
 #Token spécifique à notre bot créé sur le Discord Developer Portal
-TOKEN = "NDM2MjUxNTMyNzI0NDA0MjM1.XXKyPA.tub3cVEjwT7_OXGBvflsgFg3FcI"
+TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XXK4FA.o26wHCTWnViF9RzXkLMvT-FGCPE"
 
 #Dénomination du bot par "client" et dénomination de son préfixe par "SK" et "sk"
 client = commands.Bot(command_prefix=['SK', 'sk'])
