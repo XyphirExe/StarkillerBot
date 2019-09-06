@@ -6,6 +6,7 @@ from mutagen.mp3 import MP3
 from discord import opus
 
 #Token spécifique à notre bot créé sur le Discord Developer Portal
+
 TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XXK4FA.o26wHCTWnViF9RzXkLMvT-FGCPE"
 
 #Dénomination du bot par "client" et dénomination de son préfixe par "SK" et "sk"
@@ -29,6 +30,7 @@ channelBienvenue = int(408716218829373460)
 channelReady = int(408716218829373460)
 
 '''
+
 #On demande une musique qui sera utilisée comme musique de bienvenue sur un salon vocal précis
 bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossier "Music"\nElle sera utilisée comme musique de bienvenue sur un salon vocal précis :\n'))
 bienvenue += '.mp3'
@@ -54,7 +56,6 @@ while testReady == 0:
     else:
         print("> Erreur, il faut un ID de salon textuel. (nombre à 18 digits)\n")
         testReady = int(0)
-'''
 
 #On déclare les variables et on leur attribue une valeur de base
 listConnectedChannels = []
@@ -178,12 +179,10 @@ async def musiques(ctx):
     if musics1.mode == "r":
         list = musics1.read()
         await ctx.author.send("```" + list + "```")
-
     musics2 = open("./Music/playlist2.txt", "r")
     if musics2.mode == "r":
         list = musics2.read()
         await ctx.author.send("```" + list + "```")
-
     await ctx.send("<@{}> je vous ai envoyé un message privé contenant la liste des musiques disponibles!".format(ctx.author.id))
 
 #Commande permettant de jouer de la musique dans le salon vocal de celui l'ayant effectuée
@@ -380,6 +379,7 @@ async def on_message_delete(message):
     channel = message.channel
     print("|<!>| Ce message de {} dans {} / {} à été supprimé :\n     {}".format(author, guild, channel, content))
     await client.process_commands(message)
+
 
 #Permet la répétition de la fonction "loop()"
 client.loop.create_task(loop())
