@@ -101,7 +101,7 @@ async def on_ready():
     readyChannel = client.get_channel(int(channelReady))
     if vc is None:
         vc = await readyChannel.connect()
-    audiofile = 'ready.mp3'
+    audiofile = 'my_body_is_ready.mp3'
     vc.play(discord.FFmpegPCMAudio('./Music/' + audiofile))
     sound = MP3(str('./Music/' + audiofile))
     time = int(sound.info.length)
@@ -178,12 +178,12 @@ async def musiques(ctx):
     if musics1.mode == "r":
         list = musics1.read()
         await ctx.author.send("```" + list + "```")
-    '''
+
     musics2 = open("./Music/playlist2.txt", "r")
     if musics2.mode == "r":
         list = musics2.read()
         await ctx.author.send("```" + list + "```")
-    '''
+
     await ctx.send("<@{}> je vous ai envoyé un message privé contenant la liste des musiques disponibles!".format(ctx.author.id))
 
 #Commande permettant de jouer de la musique dans le salon vocal de celui l'ayant effectuée
