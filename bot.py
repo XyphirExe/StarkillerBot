@@ -6,12 +6,11 @@ from mutagen.mp3 import MP3
 from discord import opus
 
 #Token spécifique à notre bot créé sur le Discord Developer Portal
-TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XOnQSQ.5ThIMYGWTOoMISOomp1PNz1geJk"
 
+TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XXK4FA.o26wHCTWnViF9RzXkLMvT-FGCPE"
 
 #Dénomination du bot par "client" et dénomination de son préfixe par "SK" et "sk"
 client = commands.Bot(command_prefix=['SK', 'sk'])
-
 
 #On déclare que ces variables suivantes sont globales et peuvent être utilisées dans certaines fonctions du code
 global setChannels
@@ -21,6 +20,16 @@ global bienvenue
 global channelBienvenue
 global channelReady
 global alreadyLaunched
+
+#Dans cette version ce variables sont autmatiquements choisies
+bienvenue = str('rhinochill')
+bienvenue += '.mp3'
+
+channelBienvenue = int(408716218829373460)
+
+channelReady = int(408716218829373460)
+
+'''
 
 #On demande une musique qui sera utilisée comme musique de bienvenue sur un salon vocal précis
 bienvenue = str(input('> Sélectionnez une musique en format .mp3 dans le dossier "Music"\nElle sera utilisée comme musique de bienvenue sur un salon vocal précis :\n'))
@@ -93,7 +102,7 @@ async def on_ready():
     readyChannel = client.get_channel(int(channelReady))
     if vc is None:
         vc = await readyChannel.connect()
-    audiofile = 'ready.mp3'
+    audiofile = 'my_body_is_ready.mp3'
     vc.play(discord.FFmpegPCMAudio('./Music/' + audiofile))
     sound = MP3(str('./Music/' + audiofile))
     time = int(sound.info.length)
