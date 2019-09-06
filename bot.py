@@ -6,7 +6,7 @@ from mutagen.mp3 import MP3
 from discord import opus
 
 #Token spécifique à notre bot créé sur le Discord Developer Portal
-TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XOnQSQ.5ThIMYGWTOoMISOomp1PNz1geJk"
+TOKEN = "NDM2MjUxNTMyNzI0NDA0MjM1.XXKyPA.tub3cVEjwT7_OXGBvflsgFg3FcI"
 
 #Dénomination du bot par "client" et dénomination de son préfixe par "SK" et "sk"
 client = commands.Bot(command_prefix=['SK', 'sk'])
@@ -21,11 +21,12 @@ global channelReady
 global alreadyLaunched
 
 #Dans cette version ce variables sont autmatiquements choisies
-bienvenue = str('bienvenue')
+bienvenue = str('rhinochill')
+bienvenue += '.mp3'
 
-channelBienvenue = int(582257399243472921)
+channelBienvenue = int(408716218829373460)
 
-channelReady = int(582257399243472921)
+channelReady = int(408716218829373460)
 
 '''
 #On demande une musique qui sera utilisée comme musique de bienvenue sur un salon vocal précis
@@ -177,10 +178,12 @@ async def musiques(ctx):
     if musics1.mode == "r":
         list = musics1.read()
         await ctx.author.send("```" + list + "```")
+    '''
     musics2 = open("./Music/playlist2.txt", "r")
     if musics2.mode == "r":
         list = musics2.read()
         await ctx.author.send("```" + list + "```")
+    '''
     await ctx.send("<@{}> je vous ai envoyé un message privé contenant la liste des musiques disponibles!".format(ctx.author.id))
 
 #Commande permettant de jouer de la musique dans le salon vocal de celui l'ayant effectuée
@@ -332,7 +335,7 @@ async def addCChannel(ctx, *, id=str("Rien")):
 async def removeCChannel(ctx, *, id=str("Rien")):
     global setChannels
     global listConnectedChannels
-    if len(id) == 18 and id.isdigit() and str(id) not in listConnectedChannels:
+    if len(id) == 18 and id.isdigit() and str(id) in listConnectedChannels:
         removeChannel = client.get_channel(int(id))
         fromGuild = removeChannel.guild
         listConnectedChannels.remove(id)
@@ -342,7 +345,7 @@ async def removeCChannel(ctx, *, id=str("Rien")):
     else:
         await ctx.send("Erreur, il faut un ID de salon textuel existant dans la liste d'ID. (nombre à 18 digits)")
 
-#Lorsque qu'un message d'un salon textuel dont l'ID est présent dans la liste "listConnectedChannels" est envoyé il est renvoyé aux autres salons textuels dont leur ID ets présent dans cette liste
+#Lorsqu'un message d'un salon textuel dont l'ID est présent dans la liste "listConnectedChannels" est envoyé il est renvoyé aux autres salons textuels dont leur ID ets présent dans cette liste
 @client.event
 async def on_message(message):
     global setChannels
