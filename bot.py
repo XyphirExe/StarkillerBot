@@ -7,7 +7,7 @@ from discord import opus
 
 #Token spécifique à notre bot créé sur le Discord Developer Portal
 
-TOKEN = "NTU2OTMyMjgzMTM1OTUwODQ5.XXK4FA.o26wHCTWnViF9RzXkLMvT-FGCPE"
+TOKEN = 'NTU2OTMyMjgzMTM1OTUwODQ5.XXK9sA.TCOPol5wwtDr4zADuvBPV1_tmas'
 
 #Dénomination du bot par "client" et dénomination de son préfixe par "SK" et "sk"
 client = commands.Bot(command_prefix=['SK', 'sk'])
@@ -56,6 +56,7 @@ while testReady == 0:
     else:
         print("> Erreur, il faut un ID de salon textuel. (nombre à 18 digits)\n")
         testReady = int(0)
+'''
 
 #On déclare les variables et on leur attribue une valeur de base
 listConnectedChannels = []
