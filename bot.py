@@ -7,7 +7,7 @@ from discord import opus
 
 #Token spécifique à notre bot créé sur le Discord Developer Portal
 
-TOKEN = 'NTU2OTMyMjgzMTM1OTUwODQ5.XXK9sA.TCOPol5wwtDr4zADuvBPV1_tmas'
+TOKEN = 'NTU2OTMyMjgzMTM1OTUwODQ5.XXLKRg.NrzZhTv6tLDfoKmK8l5rLP30BB4'
 
 #Dénomination du bot par "client" et dénomination de son préfixe par "SK" et "sk"
 client = commands.Bot(command_prefix=['SK', 'sk'])
