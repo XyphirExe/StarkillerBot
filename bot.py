@@ -21,12 +21,12 @@ global channelReady
 global alreadyLaunched
 
 #Dans cette version ce variables sont autmatiquements choisies
-bienvenue = str('bienvenue')
+bienvenue = str('rhinochill')
 bienvenue += '.mp3'
 
-channelBienvenue = int(582257399243472921)
+channelBienvenue = int(408716218829373460)
 
-channelReady = int(582257399243472921)
+channelReady = int(408716218829373460)
 
 '''
 #On demande une musique qui sera utilisée comme musique de bienvenue sur un salon vocal précis
